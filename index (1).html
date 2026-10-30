@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uvesh Basha Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single column "lesson notes" page. Wide hero, an interactive RAG walkthrough, project cards as lessons, a ruled CV block. */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --ink:#13202B; --muted:#51606C; --line:#D5DCE2;
+  --accent:#0B6E5C; --accent-ink:#FFFFFF; --mark:#FFE27A; --mark-ink:#13202B; --warn:#B4461B;
+  --f-display:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;
+  --f-body:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E151B; --surface:#16202A; --ink:#E7EDF2; --muted:#9AAAB7; --line:#2A3946;
+  --accent:#4FD1B2; --accent-ink:#0E151B; --mark:#5B4B0F; --mark-ink:#FFE9A0; --warn:#F0916A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#16202A; --ink:#E7EDF2; --muted:#9AAAB7; --line:#2A3946;
+  --accent:#4FD1B2; --accent-ink:#0E151B; --mark:#5B4B0F; --mark-ink:#FFE9A0; --warn:#F0916A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);margin:0;
+  padding-block:0 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.label{font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+mark{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:2px}
+section{padding-top:72px}
+section>.label{display:block;margin-bottom:14px}
+h2{font-size:clamp(28px,4.4vw,40px);font-weight:700;letter-spacing:-.015em;max-width:20ch}
+.lede{color:var(--muted);max-width:62ch;margin:14px 0 0}
+
+/* nav */
+nav{display:flex;flex-wrap:wrap;gap:6px 22px;padding:20px 0;font:500 13px var(--f-mono);border-bottom:1px solid var(--line)}
+nav a{color:var(--muted);text-decoration:none}
+nav a:hover{color:var(--accent)}
+nav .me{color:var(--ink);margin-right:auto;font-weight:500}
+
+/* hero */
+.hero{padding-top:64px;display:grid;grid-template-columns:1fr;gap:28px}
+h1{font-size:clamp(44px,9vw,92px);font-weight:800;letter-spacing:-.03em;line-height:.98}
+.hero p{font-size:clamp(18px,2.2vw,22px);max-width:36em;margin:0;color:var(--ink)}
+.hero p.sub{font-size:16px;color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-block;padding:11px 18px;border-radius:6px;font:600 15px var(--f-body);text-decoration:none;border:1.5px solid var(--ink);color:var(--ink);background:transparent}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{transform:translateY(-1px)}
+.facts{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);margin-top:8px}
+.facts div{flex:1 1 170px;padding:16px 16px 0 0}
+.facts b{display:block;font:700 26px var(--f-display);letter-spacing:-.01em}
+.facts span{font-size:13px;color:var(--muted)}
+
+/* walkthrough */
+.lab{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lab-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:500 13px var(--f-mono);padding:7px 11px;border-radius:5px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;text-align:left}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.steps button{font:500 12px/1.3 var(--f-mono);padding:14px 10px;border:0;border-right:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;text-align:left}
+.steps button:last-child{border-right:0}
+.steps button i{display:block;font-style:normal;font-size:11px;margin-bottom:6px;opacity:.8}
+.steps button[aria-selected="true"]{background:var(--mark);color:var(--mark-ink)}
+.pane{padding:22px 18px 24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.pane h3{font-size:22px;margin-bottom:8px}
+.pane p{margin:0;color:var(--muted)}
+.pane pre{margin:0;font:400 13px/1.65 var(--f-mono);white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:14px;color:var(--ink)}
+.warn{color:var(--warn)}
+.note{font-size:12px;color:var(--muted);padding:0 18px 16px;font-family:var(--f-mono)}
+
+/* projects */
+.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h3{font-size:21px;letter-spacing:-.01em}
+.card .when{font:400 12px var(--f-mono);color:var(--muted)}
+.card p{margin:0;font-size:15px}
+.card ul{margin:0;padding-left:18px;font-size:15px}
+.card li+li{margin-top:6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.tags span{font:400 12px var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:3px 7px;color:var(--muted)}
+.teach{border-top:1px dashed var(--line);padding-top:12px;font-size:14px;color:var(--muted)}
+.teach b{color:var(--accent);font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px}
+.card.wide{grid-column:1/-1}
+
+/* cv rows */
+.rows{margin-top:24px;border-top:1px solid var(--ink)}
+.row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px 28px;padding:20px 0;border-bottom:1px solid var(--line)}
+.row .label{padding-top:5px}
+.row h3{font-size:20px;margin-bottom:4px}
+.row p,.row li{font-size:15px;margin:0}
+.row ul{margin:8px 0 0;padding-left:18px}
+.skills{display:grid;gap:10px}
+.skills div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 16px;font-size:15px}
+.skills b{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+
+footer{margin-top:80px;border-top:1px solid var(--ink);padding-top:28px;display:grid;gap:14px}
+footer h2{max-width:24ch}
+.contact{display:flex;flex-wrap:wrap;gap:8px 24px;font:500 15px var(--f-mono)}
+.contact span{user-select:all}
+
+@media (max-width:760px){
+  .projects{grid-template-columns:minmax(0,1fr)}
+  .pane{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .steps button{padding:10px 6px;font-size:11px}
+  .row{grid-template-columns:minmax(0,1fr)}
+  .skills div{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <span class="me">M. Uvesh Basha</span>
+    <a href="#how">How I explain</a>
+    <a href="#work">Projects</a>
+    <a href="#background">Background</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <header class="hero">
+    <span class="label">Portfolio · Instructional Designer Intern, AI Courses · Kalvium 2027</span>
+    <h1>I build GenAI systems, then <mark>teach</mark> how they work.</h1>
+    <p>Final-year B.Tech Computer Science student at SRM Institute of Science and Technology, Chennai. I have built two RAG applications, an LLM conversational agent with a prompt evaluation workflow, and an NLP intent and sentiment pipeline.</p>
+    <p class="sub">What I enjoy most is the step after the build: turning a working system into a clear explanation another student can follow.</p>
+    <div class="cta">
+      <a class="btn primary" href="#work">See the projects</a>
+      <a class="btn" href="https://github.com/UVESHBASHA">GitHub</a>
+      <a class="btn" href="https://www.linkedin.com/in/uvesh-basha-b910392b3/">LinkedIn</a>
+    </div>
+    <div class="facts">
+      <div><b>8.69</b><span>CGPA, B.Tech CSE, batch of 2027</span></div>
+      <div><b>4</b><span>GenAI and NLP projects, 2026</span></div>
+      <div><b>1st prize</b><span>SRISHTI’24 Product Expo</span></div>
+      <div><b>5 prompt styles</b><span>zero-shot, few-shot, role, persona, grounded</span></div>
+    </div>
+  </header>
+
+  <section id="how">
+    <span class="label">How I explain</span>
+    <h2>One RAG question, five steps</h2>
+    <p class="lede">This is how I would introduce retrieval-augmented generation to a beginner, using the pipeline from my HR Policy Q&amp;A Assistant. Pick a question, then step through what the system does.</p>
+
+    <div class="lab">
+      <div class="lab-head">
+        <span class="label">Ask the assistant</span>
+        <div class="seg" id="qseg" role="group" aria-label="Sample question">
+          <button type="button" data-q="0" aria-pressed="true">Covered by the policy</button>
+          <button type="button" data-q="1" aria-pressed="false">Not covered</button>
+        </div>
+      </div>
+      <div class="steps" id="steps" role="tablist" aria-label="Pipeline steps">
+        <button role="tab" id="t0" aria-selected="true" data-s="0"><i>STEP 1</i>Chunk</button>
+        <button role="tab" id="t1" aria-selected="false" data-s="1"><i>STEP 2</i>Embed</button>
+        <button role="tab" id="t2" aria-selected="false" data-s="2"><i>STEP 3</i>Retrieve</button>
+        <button role="tab" id="t3" aria-selected="false" data-s="3"><i>STEP 4</i>Ground</button>
+        <button role="tab" id="t4" aria-selected="false" data-s="4"><i>STEP 5</i>Answer</button>
+      </div>
+      <div class="pane" id="pane" role="tabpanel" aria-live="polite"></div>
+      <div class="note">Illustrative walkthrough with made-up sample policy text. It shows the method, not real company data.</div>
+    </div>
+  </section>
+
+  <section id="work">
+    <span class="label">Projects</span>
+    <h2>What I built, and how I would teach it</h2>
+    <div class="projects">
+
+      <article class="card wide">
+        <h3>RAG Knowledge Assistant</h3>
+        <span class="when">Jul 2026 – Sep 2026</span>
+        <p>A full-stack question-answering assistant over documents the user uploads.</p>
+        <ul>
+          <li>Sentence-transformer embeddings and ChromaDB vector search feed an LLM API.</li>
+          <li>JavaScript web interface with drag-and-drop document upload and voice input and output, connected to a FastAPI backend.</li>
+        </ul>
+        <div class="teach"><b>As a lesson</b>Students upload their own notes, then watch which passages the system retrieves before the model answers.</div>
+        <div class="tags"><span>Python</span><span>FastAPI</span><span>ChromaDB</span><span>Sentence-Transformers</span><span>LLM API</span><span>JavaScript</span></div>
+      </article>
+
+      <article class="card">
+        <h3>HR Policy Q&amp;A Assistant</h3>
+        <span class="when">Feb 2026 – Apr 2026</span>
+        <p>A RAG assistant that answers questions from policy PDFs and says so when the policy does not cover the question.</p>
+        <ul>
+          <li>Split PDFs into chunks, embedded them and stored them in ChromaDB for similarity search.</li>
+          <li>Passed the top passages to an LLM with a grounded prompt to reduce hallucinations.</li>
+          <li>Returned answers with source citations and a “not found” response.</li>
+        </ul>
+        <div class="teach"><b>As a lesson</b>Why an honest “I don’t know” is a feature, shown by comparing grounded and ungrounded answers.</div>
+        <div class="tags"><span>Python</span><span>FastAPI</span><span>ChromaDB</span><span>LLM API</span></div>
+      </article>
+
+      <article class="card">
+        <h3>LLM Conversational Agent: Prompt Engineering &amp; Response Optimization</h3>
+        <span class="when">Jul 2026 – Sep 2026</span>
+        <p>Context-aware customer-interaction responses, improved through measured prompt changes.</p>
+        <ul>
+          <li>Engineered zero-shot, few-shot, role-based and persona prompts.</li>
+          <li>Designed an evaluation workflow for relevance, consistency and instruction-following across prompt variants.</li>
+          <li>Optimized prompts iteratively using the results.</li>
+        </ul>
+        <div class="teach"><b>As a lesson</b>Students rewrite one prompt four ways and score each version against the same rubric.</div>
+        <div class="tags"><span>Python</span><span>LLM APIs</span><span>Prompt evaluation</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Conversational AI Intent &amp; Sentiment Analysis System</h3>
+        <span class="when">Jun 2026 – Aug 2026</span>
+        <p>An NLP pipeline that reads customer queries and responds in context.</p>
+        <ul>
+          <li>Classifies intent, analyzes sentiment, extracts key information and generates replies through LLM-based workflows.</li>
+          <li>FastAPI endpoints and SQL-backed conversation logging to study interaction patterns and failure cases.</li>
+        </ul>
+        <div class="teach"><b>As a lesson</b>Reading a failure log to decide what to fix first.</div>
+        <div class="tags"><span>Python</span><span>NLP</span><span>FastAPI</span><span>SQL</span><span>LLM APIs</span></div>
+      </article>
+
+      <article class="card">
+        <h3>Network Intrusion Detection, explained by an LLM</h3>
+        <span class="when">Dec 2025 – Jan 2026 · Edunet Foundation internship</span>
+        <p>A Random Forest classifier that labels network traffic as benign or malicious.</p>
+        <ul>
+          <li>Streamlit dashboard for traffic analysis.</li>
+          <li>An LLM explains each model prediction in plain language.</li>
+        </ul>
+        <div class="teach"><b>As a lesson</b>Why a prediction needs an explanation a non-specialist can read.</div>
+        <div class="tags"><span>Python</span><span>Scikit-learn</span><span>Random Forest</span><span>Streamlit</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="background">
+    <span class="label">Background</span>
+    <h2>Experience, recognition and skills</h2>
+    <div class="rows">
+      <div class="row">
+        <span class="label">Dec 2025 – Jan 2026</span>
+        <div>
+          <h3>Cybersecurity with Gen AI Intern</h3>
+          <p>Edunet Foundation (AICTE &amp; VOIS, Vodafone collaboration) · Remote</p>
+          <ul>
+            <li>Built a Python network intrusion detection system using Random Forest.</li>
+            <li>Developed a Streamlit dashboard and used an LLM to explain predictions in plain language.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Recognition</span>
+        <div>
+          <h3>First Prize, SRISHTI’24 Product Expo</h3>
+          <p>SRM Institute of Science and Technology. Won for an Ultrasonic Flow Meter by presenting its working principle and applications to evaluators.</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Certifications</span>
+        <div>
+          <p>AI-ML Virtual Internship (AICTE EduSkills) · Cloud Virtual Internship (AWS Academy, AICTE EduSkills) · OOP in C++ (Udemy)</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Education</span>
+        <div>
+          <h3>B.Tech, Computer Science &amp; Engineering</h3>
+          <p>SRM Institute of Science and Technology, Chennai · 2023 – 2027 · CGPA 8.69/10</p>
+          <p style="color:var(--muted);margin-top:6px">Sri Vijay Vidya Laya Matric Hr. Sec. School, Dharmapuri · Class XII 79% · Class X 87%</p>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Skills</span>
+        <div class="skills">
+          <div><b>Generative AI</b><span>LLMs, LLM API integration, RAG, embeddings, vector databases (ChromaDB), prompt engineering, grounded prompting, LLM response evaluation, conversational AI</span></div>
+          <div><b>ML &amp; NLP</b><span>Scikit-learn, Random Forest, feature extraction, model evaluation, intent classification, sentiment analysis</span></div>
+          <div><b>Programming &amp; data</b><span>Python, SQL, JavaScript, Java, Pandas, NumPy, PostgreSQL, MySQL</span></div>
+          <div><b>Tools</b><span>FastAPI, Streamlit, Plotly, REST APIs, Git, GitHub, Docker, AWS, Linux</span></div>
+          <div><b>Communication</b><span>Technical explanation, presentation, documentation, written and spoken English</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <span class="label">Contact</span>
+    <h2>Open to the Instructional Designer Intern (AI Courses) role</h2>
+    <div class="contact">
+      <span>uveshbasha687@gmail.com</span>
+      <a href="https://www.linkedin.com/in/uvesh-basha-b910392b3/">LinkedIn</a>
+      <a href="https://github.com/UVESHBASHA">GitHub</a>
+      <span>Chennai, India</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var data = [
+    { q:"How many days of paid leave do I get each year?",
+      chunk:"policy.pdf is split into short, overlapping passages so each one holds a single idea.",
+      chunkCode:"[chunk 7]  Leave. Full-time employees receive 18 days of paid leave per year. Unused days carry over up to 5 days.\n[chunk 8]  Sick leave. 10 days per year, with a medical note after 3 days.\n[chunk 9]  Remote work. Up to 2 days per week with manager approval.",
+      ret:"The question is embedded and compared with every stored chunk. The closest ones come back, ranked.",
+      retCode:"query  → embedding\n\n0.82  chunk 7  Leave\n0.54  chunk 8  Sick leave\n0.21  chunk 9  Remote work",
+      gro:"The top passages go into the prompt with a rule: answer only from this text and cite it.",
+      groCode:"Answer ONLY from the context below.\nIf the context does not contain the answer, say it was not found.\n\nContext:\n[chunk 7] Full-time employees receive 18 days of paid leave per year...\n\nQuestion: How many days of paid leave do I get each year?",
+      ans:"A short answer with its source, so the reader can check it.",
+      ansCode:"You receive 18 days of paid leave per year, and up to 5 unused days carry over.\n\nSource: policy.pdf, chunk 7 (Leave)", ansWarn:false },
+    { q:"What is the policy on pet-friendly offices?",
+      chunk:"The same chunks exist. Nothing in policy.pdf talks about pets.",
+      chunkCode:"[chunk 7]  Leave. Full-time employees receive 18 days of paid leave per year...\n[chunk 8]  Sick leave. 10 days per year...\n[chunk 9]  Remote work. Up to 2 days per week...",
+      ret:"Retrieval always returns something. Here every score is low, which is the signal to be careful.",
+      retCode:"query  → embedding\n\n0.19  chunk 9  Remote work\n0.14  chunk 7  Leave\n0.11  chunk 8  Sick leave",
+      gro:"The same grounded prompt runs. Its “say it was not found” rule is what protects the user.",
+      groCode:"Answer ONLY from the context below.\nIf the context does not contain the answer, say it was not found.\n\nContext:\n[chunk 9] Up to 2 days per week with manager approval...\n\nQuestion: What is the policy on pet-friendly offices?",
+      ans:"An honest “not found” instead of an invented policy.",
+      ansCode:"The policy document does not cover pet-friendly offices. Please check with HR.", ansWarn:true }
+  ];
+  var q = 0, s = 0;
+  var pane = document.getElementById('pane');
+
+  function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function render(){
+    var d = data[q];
+    var items = [
+      {h:"Cut the document into chunks", p:d.chunk, c:d.chunkCode},
+      {h:"Turn text into vectors", p:"Each chunk becomes a list of numbers with a sentence-transformer. Passages with similar meaning end up close together in ChromaDB.", c:"chunk 7 → [0.12, -0.40, 0.08, … 384 numbers]\nchunk 8 → [0.03, -0.11, 0.52, …]\nchunk 9 → [-0.27, 0.19, 0.01, …]\n\nStored once, searched on every question."},
+      {h:"Retrieve the closest passages", p:d.ret, c:d.retCode},
+      {h:"Ground the prompt", p:d.gro, c:d.groCode},
+      {h:"Answer with a citation", p:d.ans, c:d.ansCode}
+    ];
+    var it = items[s];
+    var cls = (s===4 && d.ansWarn) ? ' class="warn"' : '';
+    pane.setAttribute('aria-labelledby','t'+s);
+    pane.innerHTML = '<div><span class="label">Question</span><p style="color:var(--ink);margin:6px 0 16px;font-weight:500">“'+esc(d.q)+'”</p><h3>'+it.h+'</h3><p>'+it.p+'</p></div><pre'+cls+'>'+esc(it.c)+'</pre>';
+    Array.prototype.forEach.call(document.querySelectorAll('#steps button'), function(b,i){ b.setAttribute('aria-selected', i===s ? 'true':'false'); });
+    Array.prototype.forEach.call(document.querySelectorAll('#qseg button'), function(b,i){ b.setAttribute('aria-pressed', i===q ? 'true':'false'); });
+  }
+  document.getElementById('steps').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return; s = +b.getAttribute('data-s'); render();
+  });
+  document.getElementById('qseg').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return; q = +b.getAttribute('data-q'); render();
+  });
+  render();
+})();
+</script>
+
+</body>
+</html>
